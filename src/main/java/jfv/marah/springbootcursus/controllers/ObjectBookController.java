@@ -1,6 +1,8 @@
 package jfv.marah.springbootcursus.controllers;
 
 import jfv.marah.springbootcursus.models.Book;
+import jfv.marah.springbootcursus.repositories.BookRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -31,40 +33,52 @@ public class ObjectBookController {
         objectBooks.add(book2);
     }
 
+    @Autowired
+    private BookRepository bookRepository;
+
     @GetMapping(value = "/objectbooks")
     public ResponseEntity<Object> getObjectBooks() {
-        return ResponseEntity.ok(objectBooks);   // Jackson is een paket dat de vertaling doet: object => json
+        return ResponseEntity.ok(bookRepository.findAll());   // Jackson is een paket dat de vertaling doet: object => json
     }
 
     @GetMapping(value = "/objectbooks/{id}")
     public ResponseEntity<Object> getObjectBook(@PathVariable int id) {
-        return ResponseEntity.ok(objectBooks.get(id));
+        return ResponseEntity.ok(bookRepository.findById(id));
     }
 
     @DeleteMapping(value = "/objectbooks/{id}")
     public ResponseEntity<Object> deleteBook(@PathVariable int id){
-        objectBooks.remove(id);
+        bookRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping(value = "/objectbooks")
     public ResponseEntity<Object> addBook(@RequestBody Book newBook){
-        objectBooks.add(newBook);
-        int newId = objectBooks.size();
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(newId).toUri();
+        bookRepository.save(newBook);
+        int newId = (int) bookRepository.count();
+                URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(newId).toUri();
         return ResponseEntity.created(location).build();
     }
     // created verwacht de locatie waar je het nieuwe boek kan ophalen
 
-    @PutMapping(value = "/objectbooks{id}")
+    @PutMapping(value = "/objectbooks/{id}")
     public ResponseEntity<Object> updateBook(@PathVariable int id, @RequestBody Book newBook){
-        objectBooks.set(id, newBook);
-        return ResponseEntity.noContent().build();
+        if(bookRepository.existsById(id)) {
+            Book existingBook = bookRepository.findById(id).get();
+            existingBook.setTitle(newBook.getTitle());
+            existingBook.setAuthor(newBook.getAuthor());
+            existingBook.setIsbn(newBook.getIsbn());
+            bookRepository.save(existingBook);
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    @PatchMapping(value = "/objectbooks{id}")
-    public ResponseEntity<Object> patchBook(@PathVariable int id, @RequestBody Book newBook){
-        Book existingBook = objectBooks.get(id);
+    @PatchMapping(value = "/objectbooks/{id}")
+    public ResponseEntity<Object> partialUpdateBook(@PathVariable int id, @RequestBody Book newBook){
+        if(bookRepository.existsById(id)) {
+        Book existingBook = bookRepository.findById(id).get();
         if(!newBook.getTitle().isEmpty()){
             existingBook.setTitle(newBook.getTitle());
         }
@@ -74,13 +88,11 @@ public class ObjectBookController {
         if(!newBook.getIsbn().isEmpty()){
             existingBook.setIsbn(newBook.getIsbn());
         }
-        objectBooks.set(id, existingBook);
+        bookRepository.save(existingBook);
         return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
-/*
-De put en de patch mapping werken niet vanwege een foutmelding
-2021-11-18 13:09:32.230  WARN 9718 --- [nio-8080-exec-3] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'PATCH' not supported]
-2021-11-18 13:13:19.101  WARN 9718 --- [nio-8080-exec-6] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'PUT' not supported]
- */
 
 }
