@@ -56,13 +56,13 @@ public class ObjectBookController {
     }
     // created verwacht de locatie waar je het nieuwe boek kan ophalen
 
-    @PutMapping(value = "/objectbooks{id}")
+    @PutMapping(value = "/objectbooks/{id}")
     public ResponseEntity<Object> updateBook(@PathVariable int id, @RequestBody Book newBook){
         objectBooks.set(id, newBook);
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping(value = "/objectbooks{id}")
+    @PatchMapping(value = "/objectbooks/{id}")
     public ResponseEntity<Object> patchBook(@PathVariable int id, @RequestBody Book newBook){
         Book existingBook = objectBooks.get(id);
         if(!newBook.getTitle().isEmpty()){
@@ -78,6 +78,7 @@ public class ObjectBookController {
         return ResponseEntity.noContent().build();
     }
 /*
+zou na de / tussen het endpoint en {id} moeten werken dat deed het met de repository wel
 De put en de patch mapping werken niet vanwege een foutmelding
 2021-11-18 13:09:32.230  WARN 9718 --- [nio-8080-exec-3] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'PATCH' not supported]
 2021-11-18 13:13:19.101  WARN 9718 --- [nio-8080-exec-6] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'PUT' not supported]
