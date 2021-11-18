@@ -50,7 +50,7 @@ public class ObjectBookController {
     @PostMapping(value = "/objectbooks")
     public ResponseEntity<Object> addBook(@RequestBody Book newBook){
         objectBooks.add(newBook);
-        int newId = objectBooks.size();
+        int newId = objectBooks.size()-1;
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(newId).toUri();
         return ResponseEntity.created(location).build();
     }
