@@ -14,25 +14,6 @@ import java.util.List;
 @RestController
 public class ObjectBookController {
 
-    // attributes
-    private List<Book> objectBooks = new ArrayList<>();
-
-    // constructor
-    public ObjectBookController(){
-        Book book1 = new Book();
-        book1.setTitle("Harry Potter and the .....");
-        book1.setAuthor("J.K. Rowlings");
-        book1.setIsbn("1234587");
-
-        Book book2 = new Book();
-        book2.setTitle("The Lord of the Rings");
-        book2.setAuthor("J.P.R. Tolkien");
-        book2.setIsbn("35489795");
-
-        objectBooks.add(book1);
-        objectBooks.add(book2);
-    }
-
     @Autowired
     private BookRepository bookRepository;
 
